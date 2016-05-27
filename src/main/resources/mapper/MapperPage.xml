@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.uestc.weibo.dao.PageDao">
+	<select id="num" parameterType="int" resultType="int">
+		SELECT count(w.wid)
+		FROM weibo w 
+		WHERE EXISTS(
+			select 'x' 
+			FROM follow f 
+			WHERE f.follow = w.account_id AND f.account_id=#{accountId})
+	</select>
+	
+	<select id="findById" parameterType="int" resultType="Weibo">
+		SELECT 
+			w.*,
+			a.`name` "account.name",
+			a.follow "account.follow",
+			a.fans "account.fans",
+			a.weibo "account.weibo",
+			a.account "account.account",
+			a.password "account.password",
+			a.account_id "account.accountId"
+		FROM weibo w INNER JOIN account a ON w.account_id=a.account_id
+		WHERE EXISTS(
+			SELECT 'x' 
+			FROM follow f 
+			WHERE f.follow=w.account_id AND f.account_id=#{accountId}) 
+			ORDER BY w.wid DESC LIMIT #{start}, #{size}
+	</select>
+</mapper>
